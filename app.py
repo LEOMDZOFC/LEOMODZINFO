@@ -42,7 +42,7 @@ JWT_API_URL = "http://leomdzjwtob54.vercel.app/token"
 # =============================================
 
 ACCOUNT_CREDENTIALS = {
-    "BD": {"uid": "5372860087", "password": "shappno_create-by-shappno_S7kkYNMy"},
+    "BR": {"uid": "5372860087", "password": "shappno_create-by-shappno_S7kkYNMy"},
     "IND": {"uid": "4269013803", "password": "MG24_GAMER_XSBOS_BY_SPIDEERIO_GAMING_TE5NG"},
     "ME": {"uid": "4269012488", "password": "MG24_GAMER_U27YB_BY_SPIDEERIO_GAMING_0PNCN"},
     "SG": {"uid": "4269012488", "password": "MG24_GAMER_U27YB_BY_SPIDEERIO_GAMING_0PNCN"},
@@ -60,7 +60,7 @@ ACCOUNT_CREDENTIALS = {
 # =============================================
 
 REGION_CONFIG = {
-    "BD": {"server_url": "https://loginbp.ggblueshark.com", "release_version": "OB54", "client_version": "1.124.0"},
+    "BR": {"server_url": "https://loginbp.ggblueshark.com", "release_version": "OB54", "client_version": "1.124.0"},
     "IND": {"server_url": "https://loginbp.ggpolarbear.com", "release_version": "OB54", "client_version": "1.124.0"},
     "ME": {"server_url": "https://loginbp.ggblueshark.com", "release_version": "OB54", "client_version": "1.124.0"},
     "SG": {"server_url": "https://loginbp.ggblueshark.com", "release_version": "OB54", "client_version": "1.124.0"},
@@ -73,7 +73,7 @@ REGION_CONFIG = {
     "EU": {"server_url": "https://loginbp.ggblueshark.com", "release_version": "OB54", "client_version": "1.124.0"}
 }
 
-REGION_PRIORITY = ["BR", "IND", "ME", "SG", "ID", "TH", "VN", "PK", "BD", "US", "EU"]
+REGION_PRIORITY = ["BR", "IND", "ME", "SG", "ID", "TH", "VN", "PK", "BR", "US", "EU"]
 
 # === Flask App ===
 app = Flask(__name__)
@@ -352,7 +352,7 @@ def get_full_info():
         return jsonify({"error": "UID inválido"}), 400
     
     # =============================================
-    # 🎯 BD → IND → ME → Outros
+    # 🎯 BR → IND → ME → Outros
     # =============================================
     
     account_data = None
@@ -687,7 +687,7 @@ def token_status():
 def refresh_tokens():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    for region in ["BR", "BD", "ME"]:
+    for region in ["BR", "IND", "ME"]:
         loop.run_until_complete(token_manager.get_token(region))
     loop.close()
     return jsonify({"status": "atualizado", "count": len(token_manager.tokens)})
@@ -699,7 +699,7 @@ if __name__ == '__main__':
         token_manager = TokenManager()
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        for region in ["BR", "BD", "ME"]:
+        for region in ["BR", "IND", "ME"]:
             try:
                 loop.run_until_complete(token_manager.get_token(region))
             except:
