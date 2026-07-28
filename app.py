@@ -73,7 +73,7 @@ REGION_CONFIG = {
     "EU": {"server_url": "https://loginbp.ggblueshark.com", "release_version": "OB54", "client_version": "1.124.0"}
 }
 
-REGION_PRIORITY = ["BD", "IND", "ME", "SG", "ID", "TH", "VN", "PK", "BR", "US", "EU"]
+REGION_PRIORITY = ["BR", "IND", "ME", "SG", "ID", "TH", "VN", "PK", "BD", "US", "EU"]
 
 # === Flask App ===
 app = Flask(__name__)
@@ -671,7 +671,7 @@ def home():
         "version": "OB54",
         "endpoint": "/info?uid=UID",
         "example": "/info?uid=2084018498",
-        "priority": "BD → IND → ME → Outros",
+        "priority": "BR → IND → ME → Outros",
         "credit": "@LEO MODZ"
     })
 
@@ -687,7 +687,7 @@ def token_status():
 def refresh_tokens():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    for region in ["BD", "IND", "ME"]:
+    for region in ["BR", "BD", "ME"]:
         loop.run_until_complete(token_manager.get_token(region))
     loop.close()
     return jsonify({"status": "atualizado", "count": len(token_manager.tokens)})
@@ -699,7 +699,7 @@ if __name__ == '__main__':
         token_manager = TokenManager()
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        for region in ["BD", "IND", "ME"]:
+        for region in ["BR", "BD", "ME"]:
             try:
                 loop.run_until_complete(token_manager.get_token(region))
             except:
