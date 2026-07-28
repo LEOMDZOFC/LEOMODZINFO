@@ -12,17 +12,17 @@ import base64
 from datetime import datetime, timedelta
 from google.protobuf import json_format
 
-# ============= সব ফাইল একই ফোল্ডারে =============
+# ============= TODOS OS ARQUIVOS NA MESMA PASTA =============
 try:
     import FreeFire_pb2, main_pb2, AccountPersonalShow_pb2
     import GetOutfit_pb2
-    print("✅ Proto files imported successfully")
+    print("✅ Arquivos Proto importados com sucesso")
 except ImportError as e:
-    print(f"❌ Proto import error: {e}")
+    print(f"❌ Erro na importação Proto: {e}")
     sys.exit(1)
 
 # =============================================
-# 🔧 কনফিগারেশন
+# 🔧 CONFIGURAÇÃO
 # =============================================
 
 RELEASEVERSION = "OB54"
@@ -32,13 +32,13 @@ MAIN_KEY = base64.b64decode('WWcmdGMlREV1aDYlWmNeOA==')
 MAIN_IV = base64.b64decode('Nm95WkRyMjJFM3ljaGpNJQ==')
 
 # =============================================
-# 🔑 JWT TOKEN API
+# 🔑 API DE TOKEN JWT
 # =============================================
 
 JWT_API_URL = "http://shappno-jwt-api-ob54.vercel.app/token"
 
 # =============================================
-# 👤 একাউন্ট ক্রেডেনশিয়াল
+# 👤 CREDENCIAIS DA CONTA
 # =============================================
 
 ACCOUNT_CREDENTIALS = {
@@ -56,7 +56,7 @@ ACCOUNT_CREDENTIALS = {
 }
 
 # =============================================
-# 🌍 রিজন কনফিগ
+# 🌍 CONFIGURAÇÃO DE REGIÃO
 # =============================================
 
 REGION_CONFIG = {
@@ -80,11 +80,11 @@ app = Flask(__name__)
 CORS(app)
 
 # =============================================
-# 🏆 RANK FUNCTIONS (OB54 Updated)
+# 🏆 FUNÇÕES DE RANQUE (Atualizado OB54)
 # =============================================
 
 def get_br_rank(rp):
-    """BR Rank based on OB54 ranking system"""
+    """Ranque BR baseado no sistema de ranqueamento OB54"""
     if rp < 1000: return "Bronze I"
     if rp < 1100: return "Bronze II"
     if rp < 1200: return "Bronze III"
@@ -108,7 +108,7 @@ def get_br_rank(rp):
     return "Elite 5★"
 
 def get_cs_rank(rp):
-    """Rank do Contra Squad (CS) com Estrelas"""
+    """Ranque do Contra Squad (CS) com Estrelas"""
     if rp < 500: return "Bronze I"
     if rp < 600: return "Bronze II"
     if rp < 700: return "Bronze III"
@@ -133,7 +133,7 @@ def get_cs_rank(rp):
 
 
 # =============================================
-# 🔑 JWT Token ফাংশন
+# 🔑 Função de Token JWT
 # =============================================
 
 async def get_jwt_token_from_api(region: str):
@@ -152,11 +152,11 @@ async def get_jwt_token_from_api(region: str):
                     }
             return None
     except Exception as e:
-        print(f"⚠️ JWT API error for {region}: {e}")
+        print(f"⚠️ Erro na API JWT para {region}: {e}")
         return None
 
 # =============================================
-# 🔄 Token Manager
+# 🔄 Gerenciador de Tokens
 # =============================================
 
 class TokenManager:
@@ -170,12 +170,12 @@ class TokenManager:
             if token_info and token_info.get('expires_at', 0) > time.time():
                 return token_info
             
-            print(f"🔄 Getting token for {region} from JWT API...")
+            print(f"🔄 Obtendo token para {region} da API JWT...")
             
             token_info = await get_jwt_token_from_api(region)
             
             if not token_info:
-                print(f"⚠️ JWT API failed for {region}, using backup...")
+                print(f"⚠️ API JWT falhou para {region}, usando backup...")
                 token_info = await self.generate_token_backup(region)
             
             if token_info:
@@ -236,12 +236,12 @@ class TokenManager:
                 return token_info
                 
         except Exception as e:
-            print(f"❌ Backup token error for {region}: {e}")
+            print(f"❌ Erro no token de backup para {region}: {e}")
             return None
 
 token_manager = TokenManager()
 
-# === Helper Functions ===
+# === Funções Auxiliares ===
 def pad(text: bytes) -> bytes:
     padding_length = AES.block_size - (len(text) % AES.block_size)
     return text + bytes([padding_length] * padding_length)
@@ -259,7 +259,7 @@ async def get_access_token(account: str):
     payload = account + "&response_type=token&client_type=2&client_secret=2ee44819e9b4598845141067b281621874d0d5d7af9d8f7e00c1e54715b7d1e3&client_id=100067"
     headers = {'User-Agent': USERAGENT, 'Content-Type': "application/x-www-form-urlencoded"}
     
-    for attempt in range(3):
+    for tentativa in range(3):
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
                 resp = await client.post(url, data=payload, headers=headers)
@@ -306,24 +306,24 @@ async def GetAccountInformation(uid, region):
             account_info.ParseFromString(resp.content)
             result = json.loads(json_format.MessageToJson(account_info))
             
-            # 🔥 BAN STATUS চেক
+            # 🔥 VERIFICAR STATUS DE BANIMENTO
             is_banned = result.get("isBanned", False)
             if isinstance(is_banned, bool):
                 result["ban_status"] = "🟢 DESBANIDO" if not is_banned else "🔴 BANIDO"
             else:
                 result["ban_status"] = "❓ DESCONHECIDO"
             
-            # Add region info
+            # Adicionar informação da região
             result["_region_used"] = region
             
             return result
             
     except Exception as e:
-        print(f"❌ GetAccountInformation error: {e}")
+        print(f"❌ Erro no GetAccountInformation: {e}")
         return None
 
 # =============================================
-# 🛠 হেল্পার ফাংশন
+# 🛠 FUNÇÕES AUXILIARES
 # =============================================
 
 def ts_to_bst(ts):
@@ -331,12 +331,12 @@ def ts_to_bst(ts):
         if not ts or ts == 0:
             return "N/A"
         dt = datetime.fromtimestamp(int(ts)) + timedelta(hours=6)
-        return dt.strftime("%d %b %Y at %I:%M:%S %p") + " (BST)"
+        return dt.strftime("%d %b %Y às %I:%M:%S %p") + " (BST)"
     except:
         return "N/A"
 
 # =============================================
-# 🚀 মেইন API
+# 🚀 API PRINCIPAL
 # =============================================
 
 @app.route('/info')
@@ -344,7 +344,7 @@ def get_full_info():
     uid = request.args.get('uid')
     
     if not uid:
-        return jsonify({"error": "UID necessário"}), 400
+        return jsonify({"error": "UID é obrigatório"}), 400
     
     try:
         uid_int = int(uid)
@@ -352,7 +352,7 @@ def get_full_info():
         return jsonify({"error": "UID inválido"}), 400
     
     # =============================================
-    # 🎯 BD → IND → ME → Others
+    # 🎯 BD → IND → ME → Outros
     # =============================================
     
     account_data = None
@@ -372,7 +372,7 @@ def get_full_info():
                 print(f"✅ Sucesso com {region}")
                 break
         except Exception as e:
-            print(f"⚠️ {region} error: {e}")
+            print(f"⚠️ Erro em {region}: {e}")
             continue
     
     if not account_data:
@@ -387,18 +387,18 @@ def get_full_info():
     profile = account_data.get("profileInfo", {})
     
     # =============================================
-    # 🔥 AvatarId সঠিকভাবে নেওয়া (ক্যারেক্টার ID)
+    # 🔥 Obter AvatarId corretamente (ID do Personagem)
     # =============================================
     
     avatar_id = "N/A"
     try:
-        # প্রথমে profileInfo থেকে avatarId
+        # Primeiro, tenta profileInfo para avatarId
         if profile and "avatarId" in profile:
             avatar_id = profile.get("avatarId", "N/A")
-        # অথবা basicInfo থেকে headPic
+        # Ou basicInfo para headPic
         elif basic and "headPic" in basic:
             avatar_id = basic.get("headPic", "N/A")
-        # অথবা সরাসরি avatarId
+        # Ou avatarId diretamente
         elif basic and "avatarId" in basic:
             avatar_id = basic.get("avatarId", "N/A")
         else:
@@ -406,17 +406,17 @@ def get_full_info():
     except:
         avatar_id = "N/A"
     
-    # BR & CS Points
+    # Pontos BR & CS
     br_points = basic.get("rankingPoints", 0)
     cs_points = basic.get("csRankingPoints", 0)
     
-    # Max Points
+    # Pontos Máximos
     max_rank_points = basic.get("maxRankingPoints", 0)
     cs_max_points = basic.get("csMaxRankingPoints", 0)
     periodic_points = basic.get("periodicRankingPoints", 0)
     
     # =============================================
-    # 🎨 Outfit Details
+    # 🎨 Detalhes das Roupas
     # =============================================
     
     clothes_ids = profile.get("clothes", [])
@@ -445,7 +445,7 @@ def get_full_info():
             outfit_categories["Weapon"].append(wid)
     
     # =============================================
-    # 🔥 PrimeLevel সঠিকভাবে নেওয়া
+    # 🔥 Obter PrimeLevel corretamente
     # =============================================
     
     prime_level = "0"
@@ -498,11 +498,11 @@ def get_full_info():
                     break
                     
     except Exception as e:
-        print(f"⚠️ PrimeLevel error: {e}")
+        print(f"⚠️ Erro no PrimeLevel: {e}")
         prime_level = "0"
     
     # =============================================
-    # 📊 ডেটা ফরম্যাট করা - Outfit API তে সব ID যোগ করা
+    # 📊 Dados formatados - Adicionar todos os IDs na API de Outfit
     # =============================================
     
     response = {
@@ -518,7 +518,7 @@ def get_full_info():
             "Region": basic.get("region", "N/A"),
             "Likes": basic.get("liked", "N/A"),
             "HonorScore": credit.get("creditScore", "N/A") if credit.get("creditScore") else 0,
-            "CelebrityStatus": "Yes" if basic.get("showBrRank") else "No",
+            "CelebrityStatus": "Sim" if basic.get("showBrRank") else "Não",
             "Title": basic.get("title", "N/A"),
             "Signature": social.get("signature", "N/A"),
             "AvatarId": avatar_id,
@@ -551,7 +551,7 @@ def get_full_info():
         },
         "ActivityInformation": {
             "MostRecentOB": basic.get("releaseVersion", "N/A"),
-            "BooyahPass": "Yes" if basic.get("hasElitePass") else "No",
+            "BooyahPass": "Sim" if basic.get("hasElitePass") else "Não",
             "CurrentBpBadges": basic.get("badgeCnt", "N/A"),
             "CreatedAt": ts_to_bst(basic.get("createAt", 0)),
             "LastLogin": ts_to_bst(basic.get("lastLoginAt", 0)),
@@ -560,7 +560,7 @@ def get_full_info():
             "VeteranLeaveDaysTag": basic.get("veteranLeaveDaysTag", "N/A") if basic.get("veteranLeaveDaysTag") and basic.get("veteranLeaveDaysTag") != "VeteranLeaveDays_NONE" else "N/A"
         },
         "GuildInformation": {
-            "GuildName": clan.get("clanName", "No Guild"),
+            "GuildName": clan.get("clanName", "Sem Guild"),
             "GuildID": clan.get("clanId", "N/A"),
             "GuildLevel": clan.get("clanLevel", "N/A"),
             "LiveMembers": clan.get("memberNum", "N/A"),
@@ -571,7 +571,7 @@ def get_full_info():
             "UseCustomClanBadge": clan.get("useCustomClanBadge", False)
         },
         "PetDetails": {
-            "Equipped": "Yes" if pet.get("isSelected") else "No",
+            "Equipped": "Sim" if pet.get("isSelected") else "Não",
             "PetNick": pet.get("name", "N/A"),
             "PetType": pet.get("id", "N/A"),
             "PetSkill": pet.get("selectedSkillId", "N/A"),
@@ -622,7 +622,7 @@ def get_full_info():
             "UID": captain.get("accountId", "N/A"),
             "Level": captain.get("level", "N/A"),
             "Region": captain.get("region", "N/A"),
-            "BooyahPass": "Yes" if captain.get("hasElitePass") else "No",
+            "BooyahPass": "Sim" if captain.get("hasElitePass") else "Não",
             "CreatedAt": ts_to_bst(captain.get("createAt", 0)),
             "LastLogin": ts_to_bst(captain.get("lastLoginAt", 0)),
             "MostRecentOB": captain.get("releaseVersion", "N/A"),
@@ -671,7 +671,7 @@ def home():
         "version": "OB54",
         "endpoint": "/info?uid=UID",
         "example": "/info?uid=2084018498",
-        "priority": "BD → IND → ME → Others",
+        "priority": "BD → IND → ME → Outros",
         "credit": "@LEO MODZ"
     })
 
@@ -680,7 +680,7 @@ def token_status():
     status = {}
     for region, info in token_manager.tokens.items():
         expires_in = info['expires_at'] - time.time()
-        status[region] = {"has_token": True, "expires_in": f"{expires_in/3600:.1f} hours"}
+        status[region] = {"has_token": True, "expires_in": f"{expires_in/3600:.1f} horas"}
     return jsonify({"total_tokens": len(token_manager.tokens), "tokens": status})
 
 @app.route('/refresh')
@@ -690,7 +690,7 @@ def refresh_tokens():
     for region in ["BD", "IND", "ME"]:
         loop.run_until_complete(token_manager.get_token(region))
     loop.close()
-    return jsonify({"status": "refreshed", "count": len(token_manager.tokens)})
+    return jsonify({"status": "atualizado", "count": len(token_manager.tokens)})
 
 if __name__ == '__main__':
     import threading
